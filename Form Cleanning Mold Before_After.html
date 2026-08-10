@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Dokumentasi Foto Saja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+        body {
+            background-color: #f3f4f6;
+            font-family: Arial, sans-serif;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .a4-wrapper {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 15px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            padding: 8mm;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-border { border: 2px solid #000; }
+        
+        input[type="text"], input[type="date"], input[type="time"] {
+            transition: all 0.2s;
+            font-family: Arial, sans-serif;
+        }
+        input:focus {
+            background-color: #fef08a !important;
+            outline: none;
+        }
+        
+        /* Container untuk menampung kotak-kotak gambar */
+        .img-preview-box {
+            position: relative;
+            width: 100%;
+            min-height: 120px; 
+            border: 1.5px dashed #9ca3af;
+            background-color: #f9fafb;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .img-preview-box.has-images {
+            justify-content: flex-start;
+            align-items: flex-start;
+            border: 1.5px solid #d1d5db;
+        }
+        
+        /* BINGKAI TETAP (Crop Box) */
+        .img-wrapper-multi {
+            position: relative;
+            width: 130px; 
+            height: 130px; 
+            border: 1px solid #9ca3af;
+            background: #e5e7eb; 
+            overflow: hidden; 
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none; /* Mencegah layar HP ikut scroll saat menggeser gambar */
+        }
+        .img-wrapper-multi:active {
+            cursor: grabbing;
+        }
+
+        /* GAMBAR DI DALAM BINGKAI */
+        .img-wrapper-multi img {
+            width: 100%;
+            transform-origin: center;
+            pointer-events: none; 
+        }
+
+        /* Tombol Hapus */
+        .btn-delete {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 22px; /* Dibuat sedikit lebih besar agar mudah disentuh di HP */
+            height: 22px;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            z-index: 10;
+        }
+        .btn-delete:hover { background: #b91c1c; }
+
+        @media print {
+            body { background: white; margin: 0; }
+            .a4-wrapper { margin: 0; box-shadow: none; width: 100%; padding: 0; }
+            input:focus { background-color: transparent !important; }
+            input::placeholder { color: transparent; }
+            .img-preview-box { border: 1px solid #000 !important; background: white !important; }
+            .img-wrapper-multi { border: 1px solid #000 !important; }
+            .upload-btn-container { display: none !important; }
+            .no-print { display: none !important; }
+            .btn-delete { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-[10.5px] text-black">
+
+    <div class="a4-wrapper relative">
+        <div class="no-print mb-4 flex justify-between items-center bg-blue-50 p-3.5 border border-blue-200 rounded">
+            <div>
+                <h3 class="font-bold text-blue-800 text-sm">Form Dokumentasi Foto</h3>
+                <ul class="text-xs text-blue-600 list-disc ml-4 mt-1">
+                    <li><strong>PC/Laptop:</strong> Scroll Mouse (Zoom), Klik Tahan & Geser (Pan).</li>
+                    <li><strong>HP/Tablet:</strong> Cubit 2 Jari (Zoom), Geser 1 Jari (Pan).</li>
+                </ul>
+            </div>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded shadow cursor-pointer text-xs transition flex items-center gap-2">
+                🖨️ Simpan ke PDF
+            </button>
+        </div>
+
+        <form id="beforeAfterMoldForm" class="w-full form-border flex flex-col flex-grow bg-white">
+            <div class="grid grid-cols-2 border-b-2 border-black text-[10px]">
+                <div class="p-2 border-r-2 border-black flex flex-col gap-1.5">
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">Part No. / Part Name</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1 font-semibold" placeholder="isi part no. / part name">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">Model</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi model part">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">Customer</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi nama Customer">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">No. Overhaul</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi no. overhaul">
+                    </div>
+                </div>
+                
+                <div class="p-2 flex flex-col gap-1.5">
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">Start Date & Time</label><span class="mr-1">:</span>
+                        <input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]">
+                        <input type="time" class="bg-transparent px-1 text-[9.5px]">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">End Date & Time</label><span class="mr-1">:</span>
+                        <input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]">
+                        <input type="time" class="bg-transparent px-1 text-[9.5px]">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">Total Shot / Cycle</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="50.000 shot">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold">PIC Teknisi</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="Nama PIC Teknisi">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-32 font-bold leading-tight">Teknisi / Inspector<br>Double Check</label><span class="mr-1">:</span>
+                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="Nama Teknisi Inspector">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2 flex flex-col gap-3 flex-grow bg-gray-50/30">
+                <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">
+                    FOTO PERBANDINGAN KONDISI MOLD (BEFORE VS AFTER)
+                </div>
+
+                <div class="border border-black p-2 bg-white rounded-sm">
+                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+                        <span>1. Area Cavity Plate / Insert Cavity</span>
+                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kerak gas, karat, & deposit material</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-cavity-before')">
+                                </div>
+                            </div>
+                            <div id="preview-cavity-before" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-cavity-after')">
+                                </div>
+                            </div>
+                            <div id="preview-cavity-after" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border border-black p-2 bg-white rounded-sm">
+                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+                        <span>2. Area Core Plate / Slide Core</span>
+                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kebersihan parting line, lifter, & slide way</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-core-before')">
+                                </div>
+                            </div>
+                            <div id="preview-core-before" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-core-after')">
+                                </div>
+                            </div>
+                            <div id="preview-core-after" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-black p-2 bg-white rounded-sm">
+                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+                        <span>3. Area Ejector Plate & Ejector</span>
+                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kebersihan pin, lifter, & slide way</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-vent-before')">
+                                </div>
+                            </div>
+                            <div id="preview-vent-before" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
+                                <div class="upload-btn-container">
+                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-vent-after')">
+                                </div>
+                            </div>
+                            <div id="preview-vent-after" class="img-preview-box">
+                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
+                            </div>
+                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function handleMultipleImagesForBox(event, targetId) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const targetBox = document.getElementById(targetId);
+            const placeholder = targetBox.querySelector('.placeholder-text');
+            if (placeholder) placeholder.remove();
+            
+            targetBox.classList.add('has-images');
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'img-wrapper-multi';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.innerHTML = '×';
+                    delBtn.className = 'btn-delete no-print';
+                    delBtn.onclick = function(ex) {
+                        ex.stopPropagation();
+                        wrapper.remove();
+                        if (targetBox.querySelectorAll('.img-wrapper-multi').length === 0) {
+                            targetBox.classList.remove('has-images');
+                            targetBox.innerHTML = '<span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto ]</span>';
+                        }
+                    };
+                    
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(delBtn);
+                    targetBox.appendChild(wrapper);
+
+                    // Aktifkan Multi-Platform Pan & Zoom
+                    enablePanAndZoom(wrapper, img);
+                }
+                reader.readAsDataURL(file);
+            });
+            event.target.value = ''; 
+        }
+
+        function enablePanAndZoom(wrapper, img) {
+            let scale = 1.2; 
+            let translateX = 0;
+            let translateY = 0;
+            
+            // Mouse Vars
+            let isDragging = false;
+            let startX, startY;
+
+            // Touch Vars
+            let initialPinchDistance = null;
+            let initialScale = 1;
+
+            const updateTransform = () => {
+                img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            };
+
+            // ==========================================
+            // 1. EVENT MOUSE (UNTUK KOMPUTER / LAPTOP)
+            // ==========================================
+            wrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomSensitivity = 0.1;
+                if (e.deltaY < 0) scale += zoomSensitivity; 
+                else scale -= zoomSensitivity; 
+                scale = Math.min(Math.max(0.3, scale), 5.0);
+                updateTransform();
+            });
+
+            wrapper.addEventListener('mousedown', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                e.preventDefault();
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateTransform();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            // ==========================================
+            // 2. EVENT TOUCH (UNTUK HP / TABLET)
+            // ==========================================
+            wrapper.addEventListener('touchstart', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                
+                if (e.touches.length === 1) {
+                    // Geser 1 Jari (Pan)
+                    isDragging = true;
+                    startX = e.touches[0].clientX - translateX;
+                    startY = e.touches[0].clientY - translateY;
+                } else if (e.touches.length === 2) {
+                    // Cubit 2 Jari (Pinch-to-Zoom)
+                    isDragging = false;
+                    initialPinchDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    initialScale = scale;
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                e.preventDefault(); // Mencegah layar HP scroll saat mengedit gambar
+                
+                if (e.touches.length === 1 && isDragging) {
+                    // Eksekusi Geser 1 Jari
+                    translateX = e.touches[0].clientX - startX;
+                    translateY = e.touches[0].clientY - startY;
+                    updateTransform();
+                } else if (e.touches.length === 2 && initialPinchDistance) {
+                    // Eksekusi Cubit 2 Jari
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const distanceRatio = currentDistance / initialPinchDistance;
+                    scale = Math.min(Math.max(0.3, initialScale * distanceRatio), 5.0);
+                    updateTransform();
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) initialPinchDistance = null;
+                if (e.touches.length === 0) isDragging = false;
+            });
+
+            // Setelan awal
+            updateTransform();
+        }
+    </script>
+</body>
+</html>
