@@ -112,6 +112,12 @@
             .upload-btn-container { display: none !important; }
             .no-print { display: none !important; }
             .btn-delete { display: none !important; }
+            
+            /* Hapus style khusus border pada saat di-print agar lebih bersih */
+            input[type="date"], input[type="time"] {
+                border: none !important;
+                background-color: transparent !important;
+            }
         }
     </style>
 </head>
@@ -153,17 +159,17 @@
                 </div>
                 
                 <div class="p-2 flex flex-col gap-1.5">
-                    <div class="flex items-center">
+                    <div class="flex items-center mt-0.5">
                         <label class="w-32 font-bold">Start Date & Time</label><span class="mr-1">:</span>
-                        <input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]">
-                        <input type="time" class="bg-transparent px-1 text-[9.5px]">
+                        <input type="date" class="bg-gray-50 border border-gray-300 rounded px-1 mr-2 text-[10px] w-[90px] h-[22px]">
+                        <input type="time" class="bg-gray-50 border border-gray-300 rounded px-1 text-[10px] w-[70px] h-[22px]">
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center mt-1">
                         <label class="w-32 font-bold">End Date & Time</label><span class="mr-1">:</span>
-                        <input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]">
-                        <input type="time" class="bg-transparent px-1 text-[9.5px]">
+                        <input type="date" class="bg-gray-50 border border-gray-300 rounded px-1 mr-2 text-[10px] w-[90px] h-[22px]">
+                        <input type="time" class="bg-gray-50 border border-gray-300 rounded px-1 text-[10px] w-[70px] h-[22px]">
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center mt-1">
                         <label class="w-32 font-bold">Total Shot / Cycle</label><span class="mr-1">:</span>
                         <input type="text" class="flex-grow bg-transparent px-1" placeholder="50.000 shot">
                     </div>
