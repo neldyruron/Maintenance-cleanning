@@ -1,438 +1,757 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Dokumentasi Foto Saja</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @page {
-            size: A4 portrait;
-            margin: 8mm;
-        }
-        body {
-            background-color: #f3f4f6;
-            font-family: Arial, sans-serif;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        .a4-wrapper {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 15px auto;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
-            padding: 8mm;
-            display: flex;
-            flex-direction: column;
-        }
-        .form-border { border: 2px solid #000; }
-        
-        input[type="text"], input[type="date"], input[type="time"] {
-            transition: all 0.2s;
-            font-family: Arial, sans-serif;
-        }
-        input:focus {
-            background-color: #fef08a !important;
-            outline: none;
-        }
-        
-        /* Container untuk menampung kotak-kotak gambar */
-        .img-preview-box {
-            position: relative;
-            width: 100%;
-            min-height: 120px; 
-            border: 1.5px dashed #9ca3af;
-            background-color: #f9fafb;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .img-preview-box.has-images {
-            justify-content: flex-start;
-            align-items: flex-start;
-            border: 1.5px solid #d1d5db;
-        }
-        
-        /* BINGKAI TETAP (Crop Box) */
-        .img-wrapper-multi {
-            position: relative;
-            width: 130px; 
-            height: 130px; 
-            border: 1px solid #9ca3af;
-            background: #e5e7eb; 
-            overflow: hidden; 
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: none; /* Mencegah layar HP ikut scroll saat menggeser gambar */
-        }
-        .img-wrapper-multi:active {
-            cursor: grabbing;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Form Dokumentasi Foto Before-After Cleaning Mold</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-        /* GAMBAR DI DALAM BINGKAI */
-        .img-wrapper-multi img {
-            width: 100%;
-            transform-origin: center;
-            pointer-events: none; 
-        }
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 8mm;
+    }
+    
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: #f3f4f6;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      /* PERBAIKAN 2: Cegah body utama ikut geser ke samping di HP */
+      overflow-x: hidden; 
+    }
+    
+    /* PERBAIKAN 3: Wrapper agar form A4 bisa digeser (scroll) ke samping di layar HP */
+    #pdf-content-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px;
+    }
+    
+    /* Desain scrollbar agar lebih terlihat di PC/HP */
+    #pdf-content-wrapper::-webkit-scrollbar { height: 8px; }
+    #pdf-content-wrapper::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
 
-        /* Tombol Hapus */
-        .btn-delete {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 22px; /* Dibuat sedikit lebih besar agar mudah disentuh di HP */
-            height: 22px;
-            font-size: 13px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
-            z-index: 10;
-        }
-        .btn-delete:hover { background: #b91c1c; }
+    .a4-page {
+      width: 210mm;
+      min-height: 280mm;
+      margin: 0 auto 15px auto;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      padding: 8mm;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+    }
+    
+    .form-border { 
+      border: 2px solid #000; 
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    
+    input[type="text"], input[type="date"], input[type="time"], select {
+      transition: all 0.2s;
+      font-family: Arial, sans-serif;
+    }
+    
+    textarea {
+      font-family: Arial, sans-serif;
+      resize: none;
+      overflow: hidden;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      background-color: #fef08a !important;
+      outline: none;
+    }
 
-        @media print {
-            body { background: white; margin: 0; }
-            .a4-wrapper { margin: 0; box-shadow: none; width: 100%; padding: 0; }
-            input:focus { background-color: transparent !important; }
-            input::placeholder { color: transparent; }
-            .img-preview-box { border: 1px solid #000 !important; background: white !important; }
-            .img-wrapper-multi { border: 1px solid #000 !important; }
-            .upload-btn-container { display: none !important; }
-            .no-print { display: none !important; }
-            .btn-delete { display: none !important; }
-            
-            /* Hapus style khusus border pada saat di-print agar lebih bersih */
-            input[type="date"], input[type="time"] {
-                border: none !important;
-                background-color: transparent !important;
-            }
-        }
-    </style>
+    .img-preview-box {
+      position: relative;
+      width: 100%;
+      min-height: 180px; 
+      border: 1.5px dashed #9ca3af;
+      background-color: #f9fafb;
+      display: flex;
+      flex-direction: row; 
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 4px;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+    
+    .img-preview-box.has-images {
+      justify-content: flex-start;
+      align-items: flex-start;
+      border: 1.5px solid #d1d5db;
+    }
+    
+    .img-wrapper-multi {
+      position: relative;
+      width: calc(50% - 4px);
+      height: 160px; 
+      border: 1px solid #9ca3af;
+      background: #e5e7eb; 
+      overflow: hidden; 
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+    
+    .img-wrapper-multi:active {
+      cursor: grabbing;
+    }
+
+    .img-wrapper-multi img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform-origin: center;
+      pointer-events: none;
+    }
+
+    .btn-delete {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 22px; 
+      height: 22px;
+      font-size: 13px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      z-index: 10;
+    }
+    
+    .btn-delete:hover { 
+      background: #b91c1c; 
+    }
+
+    @media print {
+      body { 
+        background: white !important; 
+        margin: 0 !important; 
+        padding: 0 !important;
+      }
+      .no-print { display: none !important; }
+      #pdf-content-wrapper { overflow: visible !important; padding: 0 !important; }
+      .a4-page { 
+        margin: 0 !important; 
+        box-shadow: none !important; 
+        width: 100% !important; 
+        min-height: auto !important;
+        height: 275mm !important;
+        max-height: 275mm !important;
+        padding: 0 !important; 
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+      .a4-page + .a4-page {
+        page-break-before: always !important;
+        break-before: page !important;
+      }
+      input:focus, textarea:focus, select:focus { background-color: transparent !important; }
+      input::placeholder, textarea::placeholder { color: transparent; }
+      .signature-img { display: block !important; }
+      .img-preview-box { border: 1px solid #000 !important; background: white !important; }
+      .img-wrapper-multi { border: 1px solid #000 !important; }
+      .upload-btn-container { display: none !important; }
+      .btn-delete { display: none !important; }
+    }
+    
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.9);
+      z-index: 9999;
+      flex-direction: column; align-items: center; justify-content: center;
+      font-family: Arial, sans-serif;
+    }
+    
+    .spinner {
+      border: 8px solid #f3f3f3; border-top: 8px solid #2563eb;
+      border-radius: 50%; width: 60px; height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .name-input-cell {
+      text-align: center; font-size: 9.5px; font-weight: bold; width: 100%;
+      background: transparent; border: none; outline: none;
+    }
+    
+    .name-input-cell:focus { background-color: #fef08a; }
+
+    .pdf-export-mode-container {
+      width: 800px !important; margin: 0 auto !important; background: white !important; padding: 0 !important;
+      overflow: visible !important; /* Mencegah PDF terpotong saat export */
+    }
+    
+    .pdf-export-mode-page {
+      width: 800px !important; height: 1120px !important; margin: 0 !important; padding: 30px !important;
+      box-shadow: none !important; box-sizing: border-box !important;
+    }
+
+    /* Animasi panah geser untuk HP */
+    @keyframes swipe-hint {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(5px); }
+        100% { transform: translateX(0); }
+    }
+    .animate-swipe { animation: swipe-hint 1.5s infinite; }
+  </style>
 </head>
 <body class="text-[10.5px] text-black">
 
-    <div class="a4-wrapper relative">
-        <div class="no-print mb-4 flex justify-between items-center bg-blue-50 p-3.5 border border-blue-200 rounded">
-            <div>
-                <h3 class="font-bold text-blue-800 text-sm">Form Dokumentasi Foto</h3>
-                <ul class="text-xs text-blue-600 list-disc ml-4 mt-1">
-                    <li><strong>PC/Laptop:</strong> Scroll Mouse (Zoom), Klik Tahan & Geser (Pan).</li>
-                    <li><strong>HP/Tablet:</strong> Cubit 2 Jari (Zoom), Geser 1 Jari (Pan).</li>
-                </ul>
-            </div>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded shadow cursor-pointer text-xs transition flex items-center gap-2">
-                🖨️ Simpan ke PDF
-            </button>
+  <div id="loadingOverlay">
+    <div class="spinner mb-4"></div>
+    <h2 class="text-lg font-bold text-blue-800" id="loadingText">Sedang memproses laporan...</h2>
+    <p class="text-sm text-gray-600">Mohon tunggu, jangan tutup halaman ini.</p>
+  </div>
+
+  <div class="w-[95%] max-w-[210mm] mx-auto mt-4 no-print flex flex-col sm:flex-row justify-between items-start sm:items-center bg-blue-50 p-4 border border-blue-200 rounded shadow-sm gap-4">
+    <div>
+      <h3 class="font-bold text-blue-800 text-sm">Form Dokumentasi Foto Before - After Cleaning Mold</h3>
+      <p class="text-xs text-blue-600 mb-1">Versi Standalone (Offline / Non-Google Drive).</p>
+      <ul class="text-xs text-blue-600 list-disc ml-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+        <li><strong>PC:</strong> Scroll Mouse (Zoom), Klik Tahan & Geser.</li>
+        <li><strong>HP:</strong> Cubit 2 Jari (Zoom), Geser Kertas ke Kanan/Kiri.</li>
+      </ul>
+    </div>
+    <div class="flex gap-2 w-full sm:w-auto justify-end">
+      <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2.5 px-4 rounded shadow cursor-pointer text-xs transition flex items-center gap-2 whitespace-nowrap">
+        🖨️ Cetak
+      </button>
+      <button onclick="downloadLaporanPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded shadow cursor-pointer text-xs transition flex items-center gap-2 whitespace-nowrap">
+        💾 Download PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="no-print text-center mt-3 text-blue-700 font-bold text-xs sm:hidden flex justify-center items-center gap-2">
+    <span>Geser form ke kiri/kanan untuk mengisi 👉</span>
+    <span class="animate-swipe inline-block">👋</span>
+  </div>
+
+  <div id="pdf-content-wrapper">
+    <div class="a4-page page-container" id="page-1">
+      <form class="w-full form-border bg-white flex flex-col h-full">
+        <div class="flex border-b-2 border-black bg-[#c6d9f1] font-bold">
+          <div class="w-[20%] border-r border-black p-1 flex items-center justify-center text-center bg-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" class="max-h-[42px] max-w-full">
+              <rect width="260" height="90" fill="#002bb8" rx="3" ry="3"/>
+              <line x1="8" y1="16" x2="252" y2="16" stroke="#ffffff" stroke-width="3.5"/>
+              <text x="130" y="62" font-family="'Arial Black', Arial, sans-serif" font-weight="900" font-size="46" fill="#ffffff" text-anchor="middle" letter-spacing="2">SANWA</text>
+              <line x1="8" y1="74" x2="252" y2="74" stroke="#ffffff" stroke-width="3.5"/>
+            </svg>
+          </div>
+          <div class="w-[60%] border-r border-black text-center py-2 flex flex-col items-center justify-center">
+            <span class="text-sm font-bold uppercase tracking-wide">DOKUMENTASI FOTO BEFORE - AFTER CLEANING MOLD</span>
+            <span class="text-[9.5px] font-normal italic">Laporan Visual Condition Mold Before & After Preventive Maintenance</span>
+          </div>
+          <div class="w-[20%] p-1.5 text-[8.5px] flex flex-col justify-center bg-[#c6d9f1]">
+            <div><b>No. Dok</b> : FORM/MTN-IMG/03</div>
+            <div><b>Revisi</b> : 01</div>
+            <div><b>Tgl Terbit</b> : 10 Ags 2026</div>
+            <div><b>Halaman</b> : 1 dari 2</div>
+          </div>
         </div>
 
-        <form id="beforeAfterMoldForm" class="w-full form-border flex flex-col flex-grow bg-white">
-            <div class="grid grid-cols-2 border-b-2 border-black text-[10px]">
-                <div class="p-2 border-r-2 border-black flex flex-col gap-1.5">
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold">Part No. / Part Name</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1 font-semibold" placeholder="isi part no. / part name">
-                    </div>
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold">Model</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi model part">
-                    </div>
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold">Customer</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi nama Customer">
-                    </div>
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold">No. Overhaul</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="isi no. overhaul">
-                    </div>
-                </div>
-                
-                <div class="p-2 flex flex-col gap-1.5">
-                    <div class="flex items-center mt-0.5">
-                        <label class="w-32 font-bold">Start Date & Time</label><span class="mr-1">:</span>
-                        <input type="date" class="bg-gray-50 border border-gray-300 rounded px-1 mr-2 text-[10px] w-[90px] h-[22px]">
-                        <input type="time" class="bg-gray-50 border border-gray-300 rounded px-1 text-[10px] w-[70px] h-[22px]">
-                    </div>
-                    <div class="flex items-center mt-1">
-                        <label class="w-32 font-bold">End Date & Time</label><span class="mr-1">:</span>
-                        <input type="date" class="bg-gray-50 border border-gray-300 rounded px-1 mr-2 text-[10px] w-[90px] h-[22px]">
-                        <input type="time" class="bg-gray-50 border border-gray-300 rounded px-1 text-[10px] w-[70px] h-[22px]">
-                    </div>
-                    <div class="flex items-center mt-1">
-                        <label class="w-32 font-bold">Total Shot / Cycle</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="50.000 shot">
-                    </div>
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold">PIC Teknisi</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="Nama PIC Teknisi">
-                    </div>
-                    <div class="flex items-center">
-                        <label class="w-32 font-bold leading-tight">Teknisi / Inspector<br>Double Check</label><span class="mr-1">:</span>
-                        <input type="text" class="flex-grow bg-transparent px-1" placeholder="Nama Teknisi Inspector">
-                    </div>
-                </div>
+        <div class="grid grid-cols-2 border-b-2 border-black text-[10px]">
+          <div class="p-2 border-r border-black flex flex-col gap-1.5">
+            <div class="flex items-center"><label class="w-32 font-bold">Part No. / Part Name</label><span class="mr-1">:</span><input type="text" id="input-mold-name" class="flex-grow bg-transparent px-1 font-semibold" placeholder="isi part no. / part name"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">Model</label><span class="mr-1">:</span><input type="text" class="flex-grow bg-transparent px-1" placeholder="isi model part"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">Customer</label><span class="mr-1">:</span><input type="text" class="flex-grow bg-transparent px-1" placeholder="isi nama Customer"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">No. Overhaul</label><span class="mr-1">:</span><input type="text" class="flex-grow bg-transparent px-1" placeholder="isi no. overhaul"></div>
+          </div>
+          <div class="p-2 flex flex-col gap-1.5">
+            <div class="flex items-center"><label class="w-32 font-bold">Start Date & Time</label><span class="mr-1">:</span><input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]"><input type="time" class="bg-transparent px-1 text-[9.5px]"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">End Date & Time</label><span class="mr-1">:</span><input type="date" class="bg-transparent px-1 mr-2 text-[9.5px]"><input type="time" class="bg-transparent px-1 text-[9.5px]"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">Total Shot / Cycle</label><span class="mr-1">:</span><input type="text" class="flex-grow bg-transparent px-1" placeholder="50.000 shot"></div>
+            <div class="flex items-center"><label class="w-32 font-bold">PIC Teknisi</label><span class="mr-1">:</span><input type="text" id="input-pic-teknisi" class="flex-grow bg-transparent px-1" placeholder="Nama PIC Teknisi"></div>
+            <div class="flex items-center"><label class="w-32 font-bold leading-tight">Teknisi / Inspector<br>Double Check</label><span class="mr-1">:</span><input type="text" class="flex-grow bg-transparent px-1" placeholder="Nama Teknisi Inspector"></div>
+          </div>
+        </div>
+
+        <div class="p-2.5 flex flex-col gap-3 flex-grow bg-gray-50/30">
+          <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">BAGIAN 1: FOTO PERBANDINGAN KONDISI CORE & CAVITY (BEFORE VS AFTER)</div>
+          
+          <div class="border border-black p-2.5 bg-white rounded-sm shadow-sm flex-grow flex flex-col">
+            <div class="font-bold text-xs mb-2 pb-1 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+              <span>1. Area Cavity Plate / Insert Cavity</span><span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kerak gas, karat, & deposit material</span>
             </div>
-
-            <div class="p-2 flex flex-col gap-3 flex-grow bg-gray-50/30">
-                <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">
-                    FOTO PERBANDINGAN KONDISI MOLD (BEFORE VS AFTER)
-                </div>
-
-                <div class="border border-black p-2 bg-white rounded-sm">
-                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
-                        <span>1. Area Cavity Plate / Insert Cavity</span>
-                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kerak gas, karat, & deposit material</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-cavity-before')">
-                                </div>
-                            </div>
-                            <div id="preview-cavity-before" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-cavity-after')">
-                                </div>
-                            </div>
-                            <div id="preview-cavity-after" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="border border-black p-2 bg-white rounded-sm">
-                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
-                        <span>2. Area Core Plate / Slide Core</span>
-                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kebersihan parting line, lifter, & slide way</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-core-before')">
-                                </div>
-                            </div>
-                            <div id="preview-core-before" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-core-after')">
-                                </div>
-                            </div>
-                            <div id="preview-core-after" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border border-black p-2 bg-white rounded-sm">
-                    <div class="font-bold text-xs mb-1.5 pb-0.5 border-b border-gray-400 text-blue-900 flex justify-between items-center">
-                        <span>3. Area Ejector Plate & Ejector</span>
-                        <span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kebersihan pin, lifter, & slide way</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col gap-1 border border-red-300 p-1.5 bg-red-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-red-700 text-[10px]">BEFORE</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-vent-before')">
-                                </div>
-                            </div>
-                            <div id="preview-vent-before" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto Before ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                        <div class="flex flex-col gap-1 border border-green-300 p-1.5 bg-green-50/20 rounded-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-green-700 text-[10px]">AFTER</span>
-                                <div class="upload-btn-container">
-                                    <input type="file" multiple accept="image/*" class="text-[8px] w-[110px] cursor-pointer bg-white border border-gray-300 rounded p-0.5" onchange="handleMultipleImagesForBox(event, 'preview-vent-after')">
-                                </div>
-                            </div>
-                            <div id="preview-vent-after" class="img-preview-box">
-                                <span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto After ]</span>
-                            </div>
-                            <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-0.5 text-[9px]" placeholder="Keterangan: ">
-                        </div>
-                    </div>
-                </div>
-
+            <div class="grid grid-cols-2 gap-3 flex-grow">
+              <div class="flex flex-col gap-1.5 border border-red-300 p-2 bg-red-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-red-700 text-[10px]">BEFORE</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-cavity-before')"></div></div>
+                <div id="preview-cavity-before" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+              <div class="flex flex-col gap-1.5 border border-green-300 p-2 bg-green-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-green-700 text-[10px]">AFTER</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-cavity-after')"></div></div>
+                <div id="preview-cavity-after" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
             </div>
-        </form>
+          </div>
+
+          <div class="border border-black p-2.5 bg-white rounded-sm shadow-sm flex-grow flex flex-col">
+            <div class="font-bold text-xs mb-2 pb-1 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+              <span>2. Area Core Plate / Slide Core</span><span class="text-[9px] font-normal text-gray-600 italic">Pemeriksaan kebersihan parting line, lifter, & slide way</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 flex-grow">
+              <div class="flex flex-col gap-1.5 border border-red-300 p-2 bg-red-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-red-700 text-[10px]">BEFORE</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-core-before')"></div></div>
+                <div id="preview-core-before" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+              <div class="flex flex-col gap-1.5 border border-green-300 p-2 bg-green-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-green-700 text-[10px]">AFTER</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-core-after')"></div></div>
+                <div id="preview-core-after" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-black p-1 text-center bg-gray-100 text-[8.5px] mt-auto">Halaman 1 dari 2</div>
+      </form>
     </div>
 
-    <script>
-        function handleMultipleImagesForBox(event, targetId) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
+    <div class="a4-page page-container" id="page-2">
+      <form class="w-full form-border bg-white flex flex-col h-full">
+        <div class="flex border-b-2 border-black bg-[#c6d9f1] font-bold">
+          <div class="w-[20%] border-r border-black p-1 flex items-center justify-center bg-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" class="max-h-[42px] max-w-full">
+              <rect width="260" height="90" fill="#002bb8" rx="3" ry="3"/>
+              <line x1="8" y1="16" x2="252" y2="16" stroke="#ffffff" stroke-width="3.5"/>
+              <text x="130" y="62" font-family="'Arial Black', Arial, sans-serif" font-weight="900" font-size="46" fill="#ffffff" text-anchor="middle" letter-spacing="2">SANWA</text>
+              <line x1="8" y1="74" x2="252" y2="74" stroke="#ffffff" stroke-width="3.5"/>
+            </svg>
+          </div>
+          <div class="w-[60%] border-r border-black text-center py-2 flex flex-col items-center justify-center">
+            <span class="text-sm font-bold uppercase tracking-wide">DOKUMENTASI FOTO BEFORE - AFTER CLEANING MOLD</span>
+          </div>
+          <div class="w-[20%] p-1.5 text-[8.5px] flex flex-col justify-center bg-[#c6d9f1]">
+            <div><b>No. Dok</b> : FORM/MTN-IMG/03</div>
+            <div><b>Halaman</b> : 2 dari 2</div>
+          </div>
+        </div>
 
-            const targetBox = document.getElementById(targetId);
-            const placeholder = targetBox.querySelector('.placeholder-text');
-            if (placeholder) placeholder.remove();
-            
-            targetBox.classList.add('has-images');
+        <div class="p-2.5 flex flex-col gap-3 flex-grow bg-gray-50/30">
+          <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">BAGIAN 2: SALURAN VENTING & SPERPART / DAMAGE</div>
 
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'img-wrapper-multi';
-                    
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    
-                    const delBtn = document.createElement('button');
-                    delBtn.innerHTML = '×';
-                    delBtn.className = 'btn-delete no-print';
-                    delBtn.onclick = function(ex) {
-                        ex.stopPropagation();
-                        wrapper.remove();
-                        if (targetBox.querySelectorAll('.img-wrapper-multi').length === 0) {
-                            targetBox.classList.remove('has-images');
-                            targetBox.innerHTML = '<span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto-Foto ]</span>';
-                        }
-                    };
-                    
-                    wrapper.appendChild(img);
-                    wrapper.appendChild(delBtn);
-                    targetBox.appendChild(wrapper);
+          <div class="border border-black p-2.5 bg-white rounded-sm shadow-sm flex-grow flex flex-col">
+            <div class="font-bold text-xs mb-2 pb-1 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+              <span>3. Ejector Area</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 flex-grow">
+              <div class="flex flex-col gap-1.5 border border-red-300 p-2 bg-red-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-red-700 text-[10px]">BEFORE</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-vent-before')"></div></div>
+                <div id="preview-vent-before" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+              <div class="flex flex-col gap-1.5 border border-green-300 p-2 bg-green-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-green-700 text-[10px]">AFTER</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-vent-after')"></div></div>
+                <div id="preview-vent-after" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+            </div>
+          </div>
 
-                    // Aktifkan Multi-Platform Pan & Zoom
-                    enablePanAndZoom(wrapper, img);
-                }
-                reader.readAsDataURL(file);
-            });
-            event.target.value = ''; 
+          <div class="border border-black p-2.5 bg-white rounded-sm shadow-sm flex-grow flex flex-col">
+            <div class="font-bold text-xs mb-2 pb-1 border-b border-gray-400 text-blue-900 flex justify-between items-center">
+              <span>4. Temuan Damage / Penggantian Component</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 flex-grow">
+              <div class="flex flex-col gap-1.5 border border-amber-400 p-2 bg-amber-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-amber-800 text-[10px]">PART DAMAGE</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-damage-before')"></div></div>
+                <div id="preview-damage-before" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+              <div class="flex flex-col gap-1.5 border border-blue-400 p-2 bg-blue-50/20 rounded-sm">
+                <div class="flex justify-between items-center"><span class="font-bold text-blue-800 text-[10px]">PART REPLACEMENT (BARU)</span><div class="upload-btn-container"><input type="file" multiple accept="image/*" class="text-[8px] w-[115px] cursor-pointer" onchange="handleMultipleImagesForBox(event, 'preview-damage-after')"></div></div>
+                <div id="preview-damage-after" class="img-preview-box"><span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span></div>
+                <input type="text" class="w-full bg-transparent border-t border-gray-300 pt-1 text-[9px]" placeholder="Keterangan...">
+              </div>
+            </div>
+          </div>
+
+          <div class="p-2 border border-black bg-white rounded-sm mt-auto">
+            <label class="font-bold text-[10px] text-gray-800 block mb-1">Catatan / Evaluasi Kebersihan & Hasil Preventive Maintenance:</label>
+            <textarea class="w-full bg-transparent outline-none border border-gray-300 p-1.5 text-[9.5px] min-h-[45px] rounded" placeholder="Tuliskan catatan..."></textarea>
+          </div>
+        </div>
+
+        <div class="mt-auto">
+          <table class="w-full text-center bg-white text-[9.5px] table-fixed border-t-2 border-black">
+            <thead>
+              <tr class="font-bold border-b border-black bg-gray-100">
+                <th class="border-r border-black p-1 w-[16%]">Dibuat Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Diperiksa Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Diperiksa Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Disetujui Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Disetujui Oleh</th>
+                <th class="p-1 w-[20%]">Status Verifikasi Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
+                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
+                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
+                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="(Ketik Nama...)" onclick="event.stopPropagation()"><div class="font-bold pb-1">Teknisi Maint. Mold</div></div>
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
+                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
+                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
+                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="(Ketik Nama...)" onclick="event.stopPropagation()"><div class="font-bold pb-1">Staff Maint. Mold</div></div>
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
+                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
+                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
+                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Neldy R. Ronaldy" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Spv Maint. Mold</div></div>
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
+                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
+                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
+                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Fajar Wicaksana" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Manager Maintenance</div></div>
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
+                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
+                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
+                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Agus Sarjono" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Manager Produksi</div></div>
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="h-[75px] p-1 flex flex-col justify-center items-center font-bold">
+                  <span class="text-[8.5px] uppercase text-gray-600 mb-1">HASIL VERIFIKASI</span>
+                  <div class="flex flex-col items-start gap-1">
+                    <label class="cursor-pointer text-[10px] flex items-center text-green-700"><input type="radio" name="photo_status" class="mr-1 w-3 h-3" onclick="toggleRadio(this)"> PASSED</label>
+                    <label class="cursor-pointer text-[10px] flex items-center text-red-700"><input type="radio" name="photo_status" class="mr-1 w-3 h-3" onclick="toggleRadio(this)"> RE-CLEAN</label>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+  </div> 
+
+  <div id="signatureModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center no-print backdrop-blur-sm">
+    <div class="bg-white p-5 rounded-lg shadow-2xl w-[95%] max-w-md">
+      <h2 class="text-base font-bold mb-3 border-b pb-2 text-gray-800">Tanda Tangan Digital</h2>
+      <label class="block text-xs font-bold mb-1 text-gray-700">Nama Penandatangan</label>
+      <input type="text" id="signerName" class="w-full border border-gray-400 rounded p-1.5 mb-3 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+      <label class="block text-xs font-bold mb-1 text-gray-700 flex justify-between items-center">
+        <span>Coretan Tanda Tangan</span><button type="button" class="text-red-500 text-[10px] hover:underline" onclick="clearCanvas()">Hapus Coretan</button>
+      </label>
+      <div class="border-2 border-dashed border-gray-400 rounded bg-gray-50 mb-3 cursor-crosshair">
+        <canvas id="signatureCanvas" width="380" height="140" class="w-full block bg-white" style="touch-action: none;"></canvas>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-gray-200">
+        <button type="button" class="px-4 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold" onclick="closeSignatureModal()">Batal</button>
+        <button type="button" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold" onclick="saveSignature()">Simpan TTD</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // PDF GENERATION AND DIRECT DOWNLOAD LOGIC
+    async function downloadLaporanPDF() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      loadingOverlay.style.display = 'flex';
+      loadingText.innerText = "Mempersiapkan dokumen...";
+
+      document.querySelectorAll('input[type="text"], input[type="date"], input[type="time"]').forEach(el => {
+        el.setAttribute('value', el.value);
+      });
+      document.querySelectorAll('textarea').forEach(el => {
+        el.innerHTML = el.value;
+      });
+
+      var moldName = document.getElementById('input-mold-name').value || "Tanpa_Nama";
+
+      document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+
+      const wrapper = document.getElementById('pdf-content-wrapper');
+      const pages = document.querySelectorAll('.page-container');
+      
+      wrapper.classList.add('pdf-export-mode-container');
+      pages.forEach(p => p.classList.add('pdf-export-mode-page'));
+
+      await new Promise(r => setTimeout(r, 500));
+      loadingText.innerText = "Merender Halaman 1...";
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        const canvas1 = await html2canvas(pages[0], { scale: 2, useCORS: true, windowWidth: 800 });
+        const imgData1 = canvas1.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData1, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+        loadingText.innerText = "Merender Halaman 2...";
+        const canvas2 = await html2canvas(pages[1], { scale: 2, useCORS: true, windowWidth: 800 });
+        const imgData2 = canvas2.toDataURL('image/jpeg', 0.95);
+        pdf.addPage();
+        pdf.addImage(imgData2, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+        loadingText.innerText = "Mengunduh file PDF...";
+        
+        var filename = "Laporan_Maintenance_" + moldName + ".pdf";
+        pdf.save(filename);
+
+        wrapper.classList.remove('pdf-export-mode-container');
+        pages.forEach(p => p.classList.remove('pdf-export-mode-page'));
+        document.querySelectorAll('.no-print').forEach(el => el.style.display = '');
+        
+        loadingOverlay.style.display = 'none';
+        alert("✅ Laporan berhasil diunduh sebagai PDF!");
+
+      } catch (error) {
+        loadingOverlay.style.display = 'none';
+        alert("Gagal merender PDF: " + error);
+        wrapper.classList.remove('pdf-export-mode-container');
+        pages.forEach(p => p.classList.remove('pdf-export-mode-page'));
+        document.querySelectorAll('.no-print').forEach(el => el.style.display = '');
+      }
+    }
+
+    // FOTO UPLOAD LOGIC
+    function handleMultipleImagesForBox(event, targetId) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      const targetBox = document.getElementById(targetId);
+      const placeholder = targetBox.querySelector('.placeholder-text');
+      if (placeholder) placeholder.remove();
+      targetBox.classList.add('has-images');
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'img-wrapper-multi';
+          
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          
+          img.onload = function() {
+            const isPortrait = this.naturalHeight > this.naturalWidth;
+            if(isPortrait) {
+              this.style.width = '100%';
+              this.style.height = 'auto';
+            } else {
+              this.style.width = 'auto';
+              this.style.height = '100%';
+            }
+          };
+          
+          const delBtn = document.createElement('button');
+          delBtn.innerHTML = '×';
+          delBtn.className = 'btn-delete no-print';
+          delBtn.onclick = function(ex) {
+            ex.stopPropagation();
+            wrapper.remove();
+            if (targetBox.querySelectorAll('.img-wrapper-multi').length === 0) {
+              targetBox.classList.remove('has-images');
+              targetBox.innerHTML = '<span class="text-gray-400 text-[9px] no-print placeholder-text">[ Upload Foto ]</span>';
+            }
+          };
+          
+          wrapper.appendChild(img);
+          wrapper.appendChild(delBtn);
+          targetBox.appendChild(wrapper);
+
+          enablePanAndZoom(wrapper, img);
         }
+        reader.readAsDataURL(file);
+      });
+      event.target.value = ''; 
+    }
 
-        function enablePanAndZoom(wrapper, img) {
-            let scale = 1.2; 
-            let translateX = 0;
-            let translateY = 0;
-            
-            // Mouse Vars
-            let isDragging = false;
-            let startX, startY;
+    function enablePanAndZoom(wrapper, img) {
+      let scale = 1.0; 
+      let translateX = 0; let translateY = 0;
+      let isDragging = false; let startX, startY;
+      let initialPinchDistance = null; let initialScale = 1;
 
-            // Touch Vars
-            let initialPinchDistance = null;
-            let initialScale = 1;
+      const updateTransform = () => { img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`; };
 
-            const updateTransform = () => {
-                img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-            };
+      wrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        scale += e.deltaY < 0 ? 0.1 : -0.1; 
+        scale = Math.min(Math.max(0.3, scale), 5.0);
+        updateTransform();
+      });
 
-            // ==========================================
-            // 1. EVENT MOUSE (UNTUK KOMPUTER / LAPTOP)
-            // ==========================================
-            wrapper.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const zoomSensitivity = 0.1;
-                if (e.deltaY < 0) scale += zoomSensitivity; 
-                else scale -= zoomSensitivity; 
-                scale = Math.min(Math.max(0.3, scale), 5.0);
-                updateTransform();
-            });
+      wrapper.addEventListener('mousedown', (e) => {
+        if(e.target.tagName === 'BUTTON') return;
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX - translateX; startY = e.clientY - translateY;
+      });
 
-            wrapper.addEventListener('mousedown', (e) => {
-                if(e.target.tagName === 'BUTTON') return;
-                e.preventDefault();
-                isDragging = true;
-                startX = e.clientX - translateX;
-                startY = e.clientY - translateY;
-            });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        translateX = e.clientX - startX; translateY = e.clientY - startY;
+        updateTransform();
+      });
 
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                translateX = e.clientX - startX;
-                translateY = e.clientY - startY;
-                updateTransform();
-            });
+      window.addEventListener('mouseup', () => { isDragging = false; });
 
-            window.addEventListener('mouseup', () => { isDragging = false; });
-
-            // ==========================================
-            // 2. EVENT TOUCH (UNTUK HP / TABLET)
-            // ==========================================
-            wrapper.addEventListener('touchstart', (e) => {
-                if(e.target.tagName === 'BUTTON') return;
-                
-                if (e.touches.length === 1) {
-                    // Geser 1 Jari (Pan)
-                    isDragging = true;
-                    startX = e.touches[0].clientX - translateX;
-                    startY = e.touches[0].clientY - translateY;
-                } else if (e.touches.length === 2) {
-                    // Cubit 2 Jari (Pinch-to-Zoom)
-                    isDragging = false;
-                    initialPinchDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    initialScale = scale;
-                }
-            }, { passive: false });
-
-            wrapper.addEventListener('touchmove', (e) => {
-                if(e.target.tagName === 'BUTTON') return;
-                e.preventDefault(); // Mencegah layar HP scroll saat mengedit gambar
-                
-                if (e.touches.length === 1 && isDragging) {
-                    // Eksekusi Geser 1 Jari
-                    translateX = e.touches[0].clientX - startX;
-                    translateY = e.touches[0].clientY - startY;
-                    updateTransform();
-                } else if (e.touches.length === 2 && initialPinchDistance) {
-                    // Eksekusi Cubit 2 Jari
-                    const currentDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    const distanceRatio = currentDistance / initialPinchDistance;
-                    scale = Math.min(Math.max(0.3, initialScale * distanceRatio), 5.0);
-                    updateTransform();
-                }
-            }, { passive: false });
-
-            wrapper.addEventListener('touchend', (e) => {
-                if (e.touches.length < 2) initialPinchDistance = null;
-                if (e.touches.length === 0) isDragging = false;
-            });
-
-            // Setelan awal
-            updateTransform();
+      wrapper.addEventListener('touchstart', (e) => {
+        if(e.target.tagName === 'BUTTON') return;
+        if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX - translateX; startY = e.touches[0].clientY - translateY;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          initialScale = scale;
         }
-    </script>
+      }, { passive: false });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if(e.target.tagName === 'BUTTON') return;
+        e.preventDefault(); 
+        if (e.touches.length === 1 && isDragging) {
+          translateX = e.touches[0].clientX - startX; translateY = e.touches[0].clientY - startY;
+          updateTransform();
+        } else if (e.touches.length === 2 && initialPinchDistance) {
+          const currentDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          scale = Math.min(Math.max(0.3, initialScale * (currentDistance / initialPinchDistance)), 5.0);
+          updateTransform();
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) initialPinchDistance = null;
+        if (e.touches.length === 0) isDragging = false;
+      });
+
+      updateTransform();
+    }
+
+    // TANDA TANGAN LOGIC
+    const modal = document.getElementById('signatureModal');
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const nameInput = document.getElementById('signerName');
+    let currentActiveCell = null, isDrawingSignature = false, hasSignature = false, lastSigX = 0, lastSigY = 0;
+
+    function openSignatureModal(cellElement) {
+      currentActiveCell = cellElement;
+      nameInput.value = cellElement.querySelector('.name-input-cell').value.replace('(Ketik Nama...)', '');
+      clearCanvas();
+      modal.classList.remove('hidden');
+    }
+
+    function closeSignatureModal() { modal.classList.add('hidden'); currentActiveCell = null; }
+
+    function getMousePosForCanvas(evt) {
+      const rect = canvas.getBoundingClientRect();
+      let clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      let clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
+    }
+
+    function startDrawingSignature(e) {
+      e.preventDefault(); isDrawingSignature = true; hasSignature = true;
+      const pos = getMousePosForCanvas(e); lastSigX = pos.x; lastSigY = pos.y;
+      ctx.beginPath(); ctx.fillStyle = '#000'; ctx.arc(lastSigX, lastSigY, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function drawSignature(e) {
+      if (!isDrawingSignature) return;
+      e.preventDefault();
+      const pos = getMousePosForCanvas(e);
+      ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000';
+      ctx.beginPath(); ctx.moveTo(lastSigX, lastSigY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+      lastSigX = pos.x; lastSigY = pos.y;
+    }
+
+    function stopDrawingSignature() { isDrawingSignature = false; }
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); hasSignature = false; }
+
+    function saveSignature() {
+      if (!currentActiveCell) return;
+      const inputField = currentActiveCell.querySelector('.name-input-cell');
+      const promptText = currentActiveCell.querySelector('.prompt-text');
+      const imgDisplay = currentActiveCell.querySelector('.signature-img');
+      
+      if(nameInput.value.trim() !== '') {
+        inputField.value = nameInput.value.trim(); inputField.style.textDecoration = 'underline';
+      }
+      if (hasSignature) {
+        imgDisplay.src = canvas.toDataURL('image/png');
+        imgDisplay.classList.remove('hidden');
+        if (promptText) promptText.classList.add('hidden');
+      }
+      closeSignatureModal();
+    }
+
+    function clearSignature(event, cellElement) {
+      event.stopPropagation();
+      cellElement.querySelector('.signature-img').src = '';
+      cellElement.querySelector('.signature-img').classList.add('hidden');
+      const pText = cellElement.querySelector('.prompt-text'); if(pText) pText.classList.remove('hidden');
+      
+      const iField = cellElement.querySelector('.name-input-cell');
+      if(!['Neldy R. Ronaldy', 'Fajar Wicaksana', 'Agus Sarjono'].includes(iField.value)) {
+        iField.value = '(Ketik Nama...)'; iField.style.textDecoration = 'none';
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDrawingSignature); canvas.addEventListener('mousemove', drawSignature);
+    canvas.addEventListener('mouseup', stopDrawingSignature); canvas.addEventListener('mouseout', stopDrawingSignature);
+    canvas.addEventListener('touchstart', startDrawingSignature, {passive: false}); canvas.addEventListener('touchmove', drawSignature, {passive: false});
+    canvas.addEventListener('touchend', stopDrawingSignature); canvas.addEventListener('touchcancel', stopDrawingSignature);
+
+    let lastCheckedRadio = null;
+    function toggleRadio(radio) {
+      if (lastCheckedRadio === radio) { radio.checked = false; lastCheckedRadio = null; }
+      else { lastCheckedRadio = radio; }
+    }
+  </script>
 </body>
 </html>
