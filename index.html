@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="viewport" content="width=820, user-scalable=yes">
   <title>Form Dokumentasi Foto Before-After Cleaning Mold</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,26 +27,12 @@
       padding: 0;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      /* PERBAIKAN 2: Cegah body utama ikut geser ke samping di HP */
-      overflow-x: hidden; 
     }
     
-    /* PERBAIKAN 3: Wrapper agar form A4 bisa digeser (scroll) ke samping di layar HP */
-    #pdf-content-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 10px;
-    }
-    
-    /* Desain scrollbar agar lebih terlihat di PC/HP */
-    #pdf-content-wrapper::-webkit-scrollbar { height: 8px; }
-    #pdf-content-wrapper::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
-
     .a4-page {
       width: 210mm;
       min-height: 280mm;
-      margin: 0 auto 15px auto;
+      margin: 15px auto;
       background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.15);
       padding: 8mm;
@@ -160,7 +146,6 @@
         padding: 0 !important;
       }
       .no-print { display: none !important; }
-      #pdf-content-wrapper { overflow: visible !important; padding: 0 !important; }
       .a4-page { 
         margin: 0 !important; 
         box-shadow: none !important; 
@@ -212,21 +197,12 @@
 
     .pdf-export-mode-container {
       width: 800px !important; margin: 0 auto !important; background: white !important; padding: 0 !important;
-      overflow: visible !important; /* Mencegah PDF terpotong saat export */
     }
     
     .pdf-export-mode-page {
       width: 800px !important; height: 1120px !important; margin: 0 !important; padding: 30px !important;
       box-shadow: none !important; box-sizing: border-box !important;
     }
-
-    /* Animasi panah geser untuk HP */
-    @keyframes swipe-hint {
-        0% { transform: translateX(0); }
-        50% { transform: translateX(5px); }
-        100% { transform: translateX(0); }
-    }
-    .animate-swipe { animation: swipe-hint 1.5s infinite; }
   </style>
 </head>
 <body class="text-[10.5px] text-black">
@@ -237,28 +213,23 @@
     <p class="text-sm text-gray-600">Mohon tunggu, jangan tutup halaman ini.</p>
   </div>
 
-  <div class="w-[95%] max-w-[210mm] mx-auto mt-4 no-print flex flex-col sm:flex-row justify-between items-start sm:items-center bg-blue-50 p-4 border border-blue-200 rounded shadow-sm gap-4">
+  <div class="w-[210mm] mx-auto mt-4 no-print flex flex-col sm:flex-row justify-between items-center bg-blue-50 p-3.5 border border-blue-200 rounded shadow-sm gap-3">
     <div>
       <h3 class="font-bold text-blue-800 text-sm">Form Dokumentasi Foto Before - After Cleaning Mold</h3>
       <p class="text-xs text-blue-600 mb-1">Versi Standalone (Offline / Non-Google Drive).</p>
-      <ul class="text-xs text-blue-600 list-disc ml-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+      <ul class="text-xs text-blue-600 list-disc ml-4 grid grid-cols-2 gap-x-4">
         <li><strong>PC:</strong> Scroll Mouse (Zoom), Klik Tahan & Geser.</li>
-        <li><strong>HP:</strong> Cubit 2 Jari (Zoom), Geser Kertas ke Kanan/Kiri.</li>
+        <li><strong>HP:</strong> Cubit 2 Jari (Zoom), Geser 1 Jari.</li>
       </ul>
     </div>
-    <div class="flex gap-2 w-full sm:w-auto justify-end">
+    <div class="flex gap-2">
       <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2.5 px-4 rounded shadow cursor-pointer text-xs transition flex items-center gap-2 whitespace-nowrap">
-        🖨️ Cetak
+        🖨️ Cetak Manual
       </button>
       <button onclick="downloadLaporanPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded shadow cursor-pointer text-xs transition flex items-center gap-2 whitespace-nowrap">
         💾 Download PDF
       </button>
     </div>
-  </div>
-
-  <div class="no-print text-center mt-3 text-blue-700 font-bold text-xs sm:hidden flex justify-center items-center gap-2">
-    <span>Geser form ke kiri/kanan untuk mengisi 👉</span>
-    <span class="animate-swipe inline-block">👋</span>
   </div>
 
   <div id="pdf-content-wrapper">
@@ -475,8 +446,7 @@
   </div> 
 
   <div id="signatureModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center no-print backdrop-blur-sm">
-    <div class="bg-white p-5 rounded-lg shadow-2xl w-[95%] max-w-md">
-      <h2 class="text-base font-bold mb-3 border-b pb-2 text-gray-800">Tanda Tangan Digital</h2>
+    <div class="bg-white p-5 rounded-lg shadow-2xl w-[95%] max-w-md" style="zoom: 1.5;"> <h2 class="text-base font-bold mb-3 border-b pb-2 text-gray-800">Tanda Tangan Digital</h2>
       <label class="block text-xs font-bold mb-1 text-gray-700">Nama Penandatangan</label>
       <input type="text" id="signerName" class="w-full border border-gray-400 rounded p-1.5 mb-3 text-xs outline-none focus:ring-1 focus:ring-blue-500">
       <label class="block text-xs font-bold mb-1 text-gray-700 flex justify-between items-center">
