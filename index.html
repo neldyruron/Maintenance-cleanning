@@ -35,7 +35,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* Animasi transisi zoom yang mulus */
       transition: zoom 0.3s ease; 
     }
 
@@ -215,7 +214,7 @@
 
     .pdf-export-mode-container {
       width: 800px !important; margin: 0 auto !important; background: white !important; padding: 0 !important;
-      zoom: 1 !important; /* Paksa reset zoom saat export PDF */
+      zoom: 1 !important; 
     }
     
     .pdf-export-mode-page {
@@ -364,7 +363,90 @@
           </div>
         </div>
         
-        <div class="border-t border-black p-1 text-center bg-gray-100 text-[8.5px] mt-auto">Halaman 1 dari 2</div>
+        <div class="mt-auto">
+          <table class="w-full text-center bg-white text-[9.5px] table-fixed border-t-2 border-black">
+            <thead>
+              <tr class="font-bold border-b border-black bg-gray-100">
+                <th class="border-r border-black p-1 w-[16%]">Dibuat Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Diperiksa Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Diperiksa Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Disetujui Oleh</th>
+                <th class="border-r border-black p-1 w-[16%]">Disetujui Oleh</th>
+                <th class="p-1 w-[20%]">Status Verifikasi Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="h-[50px]">
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'teknisi_p1')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'staff_p1')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'spv_p1')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'mgr_maint_p1')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'mgr_prod_p1')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
+                  </div>
+                  <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
+                </td>
+                
+                <td rowspan="2" class="p-1 font-bold align-top pt-3">
+                  <span class="text-[8.5px] uppercase text-gray-600 mb-2 block">HASIL VERIFIKASI</span>
+                  <div class="flex flex-col items-start gap-1.5 ml-2">
+                    <label class="cursor-pointer text-[10px] flex items-center text-green-700"><input type="radio" name="photo_status_p1" class="mr-1.5 w-3.5 h-3.5" onclick="toggleRadio(this)"> PASSED</label>
+                    <label class="cursor-pointer text-[10px] flex items-center text-red-700"><input type="radio" name="photo_status_p1" class="mr-1.5 w-3.5 h-3.5" onclick="toggleRadio(this)"> RE-CLEAN</label>
+                  </div>
+                </td>
+              </tr>
+              <tr class="h-[25px]">
+                <td class="border-r border-t border-black p-0 align-top">
+                  <input type="text" id="name_teknisi_p1" class="name-input-cell w-full pt-1 pb-0.5 placeholder-gray-500" placeholder="(Ketik Nama...)">
+                  <div class="font-bold pb-1 text-[9px]">Teknisi Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top">
+                  <input type="text" id="name_staff_p1" class="name-input-cell w-full pt-1 pb-0.5 placeholder-gray-500" placeholder="(Ketik Nama...)">
+                  <div class="font-bold pb-1 text-[9px]">Staff Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_spv_p1" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Neldy R. Ronaldy</div>
+                  <div class="font-bold pb-1 text-[9px]">Spv Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_mgr_maint_p1" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Fajar Wicaksana</div>
+                  <div class="font-bold pb-1 text-[9px]">Manager Maintenance</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_mgr_prod_p1" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Agus Sarjono</div>
+                  <div class="font-bold pb-1 text-[9px]">Manager Produksi</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="border-t border-black p-1 text-center bg-gray-100 text-[8.5px]">Halaman 1 dari 2</div>
       </form>
     </div>
 
@@ -383,13 +465,13 @@
             <span class="text-sm font-bold uppercase tracking-wide">DOKUMENTASI FOTO BEFORE - AFTER CLEANING MOLD</span>
           </div>
           <div class="w-[20%] p-1.5 text-[8.5px] flex flex-col justify-center bg-[#c6d9f1]">
-            <div><b>No. Dok</b> : FORM SUPPORT</div>
+            <div><b>No. Dok</b> : FORM/MTN-IMG/03</div>
             <div><b>Halaman</b> : 2 dari 2</div>
           </div>
         </div>
 
         <div class="p-2.5 flex flex-col gap-3 flex-grow bg-gray-50/30">
-          <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">BAGIAN 2: AREA EJECTOR & SPERPART / DAMAGE</div>
+          <div class="font-bold text-center bg-gray-200 py-1.5 uppercase tracking-wide border border-black text-[10.5px]">BAGIAN 2: SALURAN VENTING & SPERPART / DAMAGE</div>
 
           <div class="border border-black p-2.5 bg-white rounded-sm shadow-sm flex-grow flex flex-col">
             <div class="font-bold text-xs mb-2 pb-1 border-b border-gray-400 text-blue-900 flex justify-between items-center">
@@ -478,53 +560,77 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
-                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
-                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
-                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="(Ketik Nama...)" onclick="event.stopPropagation()"><div class="font-bold pb-1">Teknisi Maint. Mold</div></div>
+              <tr class="h-[50px]">
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'teknisi_p2')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
                   </div>
                   <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
                 </td>
-                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
-                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
-                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
-                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="(Ketik Nama...)" onclick="event.stopPropagation()"><div class="font-bold pb-1">Staff Maint. Mold</div></div>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'staff_p2')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
                   </div>
                   <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
                 </td>
-                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
-                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
-                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
-                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Neldy R. Ronaldy" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Spv Maint. Mold</div></div>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'spv_p2')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
                   </div>
                   <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
                 </td>
-                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
-                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
-                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
-                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Fajar Wicaksana" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Manager Maintenance</div></div>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'mgr_maint_p2')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
                   </div>
                   <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
                 </td>
-                <td class="border-r border-black h-[75px] p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-bottom" onclick="openSignatureModal(this)">
-                  <div class="flex flex-col items-center justify-end h-full w-full pointer-events-none pb-1">
-                    <div class="flex-grow flex items-center justify-center w-full"><span class="text-gray-400 text-[8px] no-print prompt-text pb-1">Klik TTD</span><img src="" class="hidden max-h-[50px] max-w-full object-contain signature-img mb-1"></div>
-                    <div class="w-full border-t border-black pt-0.5"><input type="text" class="name-input-cell pointer-events-auto" value="Agus Sarjono" style="text-decoration: underline;" onclick="event.stopPropagation()"><div class="font-bold pb-1">Manager Produksi</div></div>
+                <td class="border-r border-black p-0 relative cursor-pointer hover:bg-yellow-50 transition group align-middle" onclick="openSignatureModal(this, 'mgr_prod_p2')">
+                  <div class="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span class="text-gray-400 text-[8px] no-print prompt-text">Klik TTD</span>
+                    <img src="" class="hidden max-h-[45px] max-w-full object-contain signature-img">
                   </div>
                   <button type="button" class="hidden group-hover:flex no-print absolute top-1 right-1 bg-red-100 text-red-600 rounded px-1 text-[8px]" onclick="clearSignature(event, this.parentElement)">Hapus</button>
                 </td>
-                <td class="h-[75px] p-1 flex flex-col justify-center items-center font-bold">
-                  <span class="text-[8.5px] uppercase text-gray-600 mb-1">HASIL VERIFIKASI</span>
-                  <div class="flex flex-col items-start gap-1">
-                    <label class="cursor-pointer text-[10px] flex items-center text-green-700"><input type="radio" name="photo_status" class="mr-1 w-3 h-3" onclick="toggleRadio(this)"> PASSED</label>
-                    <label class="cursor-pointer text-[10px] flex items-center text-red-700"><input type="radio" name="photo_status" class="mr-1 w-3 h-3" onclick="toggleRadio(this)"> RE-CLEAN</label>
+                
+                <td rowspan="2" class="p-1 font-bold align-top pt-3">
+                  <span class="text-[8.5px] uppercase text-gray-600 mb-2 block">HASIL VERIFIKASI</span>
+                  <div class="flex flex-col items-start gap-1.5 ml-2">
+                    <label class="cursor-pointer text-[10px] flex items-center text-green-700"><input type="radio" name="photo_status_p2" class="mr-1.5 w-3.5 h-3.5" onclick="toggleRadio(this)"> PASSED</label>
+                    <label class="cursor-pointer text-[10px] flex items-center text-red-700"><input type="radio" name="photo_status_p2" class="mr-1.5 w-3.5 h-3.5" onclick="toggleRadio(this)"> RE-CLEAN</label>
                   </div>
+                </td>
+              </tr>
+              <tr class="h-[25px]">
+                <td class="border-r border-t border-black p-0 align-top">
+                  <input type="text" id="name_teknisi_p2" class="name-input-cell w-full pt-1 pb-0.5 placeholder-gray-500" placeholder="(Ketik Nama...)">
+                  <div class="font-bold pb-1 text-[9px]">Teknisi Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top">
+                  <input type="text" id="name_staff_p2" class="name-input-cell w-full pt-1 pb-0.5 placeholder-gray-500" placeholder="(Ketik Nama...)">
+                  <div class="font-bold pb-1 text-[9px]">Staff Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_spv_p2" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Neldy R. Ronaldy</div>
+                  <div class="font-bold pb-1 text-[9px]">Spv Maint. Mold</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_mgr_maint_p2" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Fajar Wicaksana</div>
+                  <div class="font-bold pb-1 text-[9px]">Manager Maintenance</div>
+                </td>
+                <td class="border-r border-t border-black p-0 align-top bg-gray-50">
+                  <div id="name_mgr_prod_p2" class="w-full pt-1 pb-0.5 font-bold" style="text-decoration: underline;">Agus Sarjono</div>
+                  <div class="font-bold pb-1 text-[9px]">Manager Produksi</div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <div class="border-t border-black p-1 text-center bg-gray-100 text-[8.5px]">Halaman 2 dari 2</div>
       </form>
     </div>
   </div> 
@@ -548,13 +654,12 @@
   </div>
 
   <script>
-    // PERBAIKAN 3: SCRIPT AUTO-ZOOM KHUSUS HP AGAR TIDAK BLANK DI ANDROID
+    // SCRIPT AUTO-ZOOM KHUSUS HP
     function applyMobileScale() {
       const wrapper = document.getElementById('pdf-content-wrapper');
       const screenWidth = window.innerWidth;
       
       if (screenWidth < 840) {
-        // Otomatis mengecilkan kertas jika lebar layar HP kurang dari 840px
         const zoomLevel = screenWidth / 840;
         wrapper.style.zoom = zoomLevel;
       } else {
@@ -562,12 +667,11 @@
       }
     }
     
-    // Jalankan auto-zoom saat halaman dimuat atau layar diputar
     window.addEventListener('resize', applyMobileScale);
     window.addEventListener('load', applyMobileScale);
-    applyMobileScale(); // Jalankan langsung
+    applyMobileScale(); 
 
-    // PDF GENERATION AND DIRECT DOWNLOAD LOGIC
+    // PDF GENERATION
     async function downloadLaporanPDF() {
       const loadingOverlay = document.getElementById('loadingOverlay');
       const loadingText = document.getElementById('loadingText');
@@ -587,7 +691,6 @@
       const wrapper = document.getElementById('pdf-content-wrapper');
       const pages = document.querySelectorAll('.page-container');
       
-      // RESET ZOOM SEMENTARA SEBELUM DIJADIKAN PDF AGAR GAMBAR TIDAK KEPOTONG
       const currentZoom = wrapper.style.zoom;
       wrapper.style.zoom = 1; 
       
@@ -617,7 +720,6 @@
         var filename = "Laporan_Maintenance_" + moldName + ".pdf";
         pdf.save(filename);
 
-        // KEMBALIKAN ZOOM SEPERTI SEMULA
         wrapper.style.zoom = currentZoom;
         wrapper.classList.remove('pdf-export-mode-container');
         pages.forEach(p => p.classList.remove('pdf-export-mode-page'));
@@ -630,7 +732,6 @@
         loadingOverlay.style.display = 'none';
         alert("Gagal merender PDF: " + error);
         
-        // KEMBALIKAN ZOOM SEPERTI SEMULA JIKA GAGAL
         wrapper.style.zoom = currentZoom;
         wrapper.classList.remove('pdf-export-mode-container');
         pages.forEach(p => p.classList.remove('pdf-export-mode-page'));
@@ -753,16 +854,27 @@
       updateTransform();
     }
 
-    // TANDA TANGAN LOGIC
+    // TANDA TANGAN LOGIC BARU (MEMISAHKAN INPUT NAMA DARI TOMBOL TTD)
     const modal = document.getElementById('signatureModal');
     const canvas = document.getElementById('signatureCanvas');
     const ctx = canvas.getContext('2d');
     const nameInput = document.getElementById('signerName');
     let currentActiveCell = null, isDrawingSignature = false, hasSignature = false, lastSigX = 0, lastSigY = 0;
 
-    function openSignatureModal(cellElement) {
+    function openSignatureModal(cellElement, roleId) {
       currentActiveCell = cellElement;
-      nameInput.value = cellElement.querySelector('.name-input-cell').value.replace('(Ketik Nama...)', '');
+      
+      // Ambil nama dari elemen yang terhubung
+      let nameElement = document.getElementById('name_' + roleId);
+      if(nameElement.tagName === 'INPUT') {
+          nameInput.value = nameElement.value.replace('(Ketik Nama...)', '');
+      } else {
+          nameInput.value = nameElement.innerText;
+      }
+      
+      // Beri tanda ke modal, cell mana yang sedang aktif di-edit
+      modal.setAttribute('data-role', roleId);
+
       clearCanvas();
       modal.classList.remove('hidden');
     }
@@ -796,13 +908,19 @@
 
     function saveSignature() {
       if (!currentActiveCell) return;
-      const inputField = currentActiveCell.querySelector('.name-input-cell');
+      
+      const roleId = modal.getAttribute('data-role');
+      const nameElement = document.getElementById('name_' + roleId);
       const promptText = currentActiveCell.querySelector('.prompt-text');
       const imgDisplay = currentActiveCell.querySelector('.signature-img');
       
-      if(nameInput.value.trim() !== '') {
-        inputField.value = nameInput.value.trim(); inputField.style.textDecoration = 'underline';
+      // Jika yang di-edit adalah input (Teknisi/Staff), update namanya jika diketik di modal
+      if(nameInput.value.trim() !== '' && nameElement.tagName === 'INPUT') {
+        nameElement.value = nameInput.value.trim(); 
+        nameElement.style.textDecoration = 'underline';
       }
+
+      // Tampilkan coretan TTD
       if (hasSignature) {
         imgDisplay.src = canvas.toDataURL('image/png');
         imgDisplay.classList.remove('hidden');
@@ -815,12 +933,8 @@
       event.stopPropagation();
       cellElement.querySelector('.signature-img').src = '';
       cellElement.querySelector('.signature-img').classList.add('hidden');
-      const pText = cellElement.querySelector('.prompt-text'); if(pText) pText.classList.remove('hidden');
-      
-      const iField = cellElement.querySelector('.name-input-cell');
-      if(!['Neldy R. Ronaldy', 'Fajar Wicaksana', 'Agus Sarjono'].includes(iField.value)) {
-        iField.value = '(Ketik Nama...)'; iField.style.textDecoration = 'none';
-      }
+      const pText = cellElement.querySelector('.prompt-text'); 
+      if(pText) pText.classList.remove('hidden');
     }
 
     canvas.addEventListener('mousedown', startDrawingSignature); canvas.addEventListener('mousemove', drawSignature);
@@ -828,10 +942,17 @@
     canvas.addEventListener('touchstart', startDrawingSignature, {passive: false}); canvas.addEventListener('touchmove', drawSignature, {passive: false});
     canvas.addEventListener('touchend', stopDrawingSignature); canvas.addEventListener('touchcancel', stopDrawingSignature);
 
-    let lastCheckedRadio = null;
+    // FIX RADIO BUTTON AGAR PAGE 1 DAN 2 TIDAK SALING BERHUBUNGAN
+    let lastCheckedRadio = {};
     function toggleRadio(radio) {
-      if (lastCheckedRadio === radio) { radio.checked = false; lastCheckedRadio = null; }
-      else { lastCheckedRadio = radio; }
+      const name = radio.name;
+      if (lastCheckedRadio[name] === radio) { 
+        radio.checked = false; 
+        lastCheckedRadio[name] = null; 
+      }
+      else { 
+        lastCheckedRadio[name] = radio; 
+      }
     }
   </script>
 </body>
